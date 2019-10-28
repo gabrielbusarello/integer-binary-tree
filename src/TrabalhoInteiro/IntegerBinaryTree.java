@@ -1,6 +1,8 @@
 package TrabalhoInteiro;
 
 import br.univille.estd.binarytree.BTPosition;
+import br.univille.estd.binarytree.BinaryTreeUtils;
+import br.univille.estd.binarytree.DuplicateValueException;
 import br.univille.estd.binarytree.LinkedBinaryTree;
 
 public class IntegerBinaryTree implements IntegerBinaryTreeI {
@@ -18,31 +20,52 @@ public class IntegerBinaryTree implements IntegerBinaryTreeI {
 			tree.addRoot(i);
 		} else {
 			this.i = i;
-			this.compare(tree.root());
+			this.compareAdd(tree.root());
 		}
 	}
 	
-	private void compare(BTPosition<Integer> v) {
+	private void compareAdd(BTPosition<Integer> v) throws DuplicateValueException {
 		if (i < v.getElement()) {
-//			if (tree.hasLeft(v) || ) {
-//				
-//			}
-			tree.insertLeft(v, i);
+			if (tree.hasLeft(v)) {
+				compareAdd(v.getLeft());
+			} else {
+				tree.insertLeft(v, i);
+			}
 		} else if (i > v.getElement()) {
-			tree.insertRight(v, i);
+			if (tree.hasRight(v)) {
+				compareAdd(v.getRight());
+			} else {
+				tree.insertRight(v, i);	
+			}
 		} else {
-			compare(v);
+			throw new DuplicateValueException("Já existe um nó com este valor (" + i + ")");
 		}
+	}
+	
+	private BTPosition<Integer> compare(BTPosition<Integer> v) {
+		if (i < v.getElement() && tree.hasLeft(v) && v.getLeft().getElement() != i) {
+			compare(v.getLeft());
+		} else if (i > v.getElement() && tree.hasRight(v) && v.getRight().getElement() != i) {
+			compare(v.getRight());
+		} else {
+			return v;
+		}
+		return null;
 	}
 
 	@Override
 	public boolean contains(Integer i) {
-		return false;
+		this.i = i;
+		return compare(tree.root()) != null;
 	}
 
 	@Override
 	public void remove(Integer i) {
-		size--;
+		this.i = i;
+		BTPosition<Integer> rV = compare(tree.root());
+		if (rV != null) {
+			tree.remove(rV);
+		}
 	}
 	
 	@Override
@@ -57,7 +80,12 @@ public class IntegerBinaryTree implements IntegerBinaryTreeI {
 
 	@Override
 	public void clear() {
-//		IntegerBinaryTree();
+		tree = new LinkedBinaryTree<Integer>();
+	}
+
+	@Override
+	public String toString() {
+		return BinaryTreeUtils.toStringInOrder(tree, tree.root());
 	}
 
 }
