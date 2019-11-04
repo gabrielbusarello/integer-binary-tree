@@ -48,7 +48,13 @@ public class IntegerBinaryTree implements IntegerBinaryTreeI {
 		} else if (i > v.getElement() && tree.hasRight(v) && v.getRight().getElement() != i) {
 			compare(v.getRight());
 		} else {
-			return v;
+			if (tree.hasRight(v) && v.getRight().getElement() == i) {
+				return v.getRight();
+			} else if (tree.hasLeft(v) && v.getLeft().getElement() == i) {
+				return v.getLeft();
+			} else {
+				return v;
+			}
 		}
 		return null;
 	}
